@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dusk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Luminae — Aesthetic Quote Gallery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── CSS Variables / Themes ── */
+    :root {
+      --transition: 0.4s cubic-bezier(.4,0,.2,1);
+    }
+
+    [data-theme="dusk"] {
+      --bg:        #0d0b1a;
+      --bg2:       #13102b;
+      --surface:   rgba(255,255,255,0.06);
+      --border:    rgba(255,255,255,0.10);
+      --glass:     rgba(255,255,255,0.04);
+      --glow:      rgba(180,120,255,0.25);
+      --accent1:   #c97fff;
+      --accent2:   #ff8fbe;
+      --accent3:   #7fd4ff;
+      --text:      #f0ecff;
+      --muted:     rgba(240,236,255,0.50);
+      --grad:      linear-gradient(135deg,#c97fff 0%,#ff8fbe 50%,#7fd4ff 100%);
+      --hero-bg:   radial-gradient(ellipse 80% 60% at 50% 0%, rgba(140,70,255,.35) 0%, transparent 70%),
+                   radial-gradient(ellipse 60% 50% at 90% 80%, rgba(255,100,170,.25) 0%, transparent 65%),
+                   #0d0b1a;
+    }
+
+    [data-theme="dawn"] {
+      --bg:        #fff8f2;
+      --bg2:       #fff1e6;
+      --surface:   rgba(255,255,255,0.65);
+      --border:    rgba(220,160,100,0.25);
+      --glass:     rgba(255,255,255,0.45);
+      --glow:      rgba(255,150,80,0.20);
+      --accent1:   #e0703a;
+      --accent2:   #c94b8a;
+      --accent3:   #5b9bd5;
+      --text:      #2a1a0e;
+      --muted:     rgba(42,26,14,0.55);
+      --grad:      linear-gradient(135deg,#e0703a 0%,#c94b8a 50%,#5b9bd5 100%);
+      --hero-bg:   radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,160,80,.30) 0%, transparent 70%),
+                   radial-gradient(ellipse 60% 50% at 90% 80%, rgba(200,80,140,.20) 0%, transparent 65%),
+                   #fff8f2;
+    }
+
+    [data-theme="forest"] {
+      --bg:        #0a1208;
+      --bg2:       #0e1a0c;
+      --surface:   rgba(255,255,255,0.06);
+      --border:    rgba(100,220,120,0.15);
+      --glass:     rgba(255,255,255,0.04);
+      --glow:      rgba(80,200,100,0.20);
+      --accent1:   #72e08a;
+      --accent2:   #b8ff6e;
+      --accent3:   #4db8b8;
+      --text:      #e8f5e8;
+      --muted:     rgba(232,245,232,0.50);
+      --grad:      linear-gradient(135deg,#72e08a 0%,#b8ff6e 50%,#4db8b8 100%);
+      --hero-bg:   radial-gradient(ellipse 80% 60% at 50% 0%, rgba(60,180,80,.30) 0%, transparent 70%),
+                   radial-gradient(ellipse 60% 50% at 90% 80%, rgba(70,200,120,.20) 0%, transparent 65%),
+                   #0a1208;
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent1); border-radius: 99px; }
+
+    /* ── Navbar ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(0,0,0,0);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 300; letter-spacing: .08em;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: .85rem; letter-spacing: .06em;
+      text-transform: uppercase; transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--accent1); }
+    .nav-right { display: flex; gap: .6rem; align-items: center; }
+
+    /* Theme pills */
+    .theme-btn {
+      padding: .35rem .9rem; border: 1px solid var(--border);
+      border-radius: 99px; background: var(--surface);
+      color: var(--muted); font-size: .75rem; cursor: pointer;
+      transition: all .25s; backdrop-filter: blur(8px);
+    }
+    .theme-btn:hover, .theme-btn.active {
+      border-color: var(--accent1); color: var(--accent1);
+      background: var(--glow);
+    }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: .4rem; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all .3s; }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      background: var(--hero-bg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 6rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); pointer-events: none; opacity: .6;
+    }
+    .orb1 { width: 420px; height: 420px; background: var(--accent1); top: -120px; left: -80px; }
+    .orb2 { width: 320px; height: 320px; background: var(--accent2); bottom: -80px; right: -60px; }
+    .orb3 { width: 260px; height: 260px; background: var(--accent3); bottom: 20%; left: 10%; }
+
+    .hero-tag {
+      display: inline-block;
+      border: 1px solid var(--border); border-radius: 99px;
+      padding: .35rem 1.1rem; font-size: .75rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+      background: var(--surface); backdrop-filter: blur(8px);
+      margin-bottom: 2rem;
+      animation: fadeUp .8s .1s both;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 300; line-height: 1.1;
+      animation: fadeUp .8s .2s both;
+    }
+    .hero-title em { font-style: italic; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub {
+      max-width: 520px; color: var(--muted); font-size: 1.05rem; font-weight: 300;
+      margin: 1.4rem auto 2.8rem;
+      animation: fadeUp .8s .35s both;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; animation: fadeUp .8s .45s both; }
+    .btn-primary {
+      padding: .85rem 2.2rem; border-radius: 99px;
+      background: var(--grad); color: #fff; font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; font-weight: 500; border: none; cursor: pointer;
+      box-shadow: 0 0 30px var(--glow);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px var(--glow); }
+    .btn-outline {
+      padding: .85rem 2.2rem; border-radius: 99px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; cursor: pointer; backdrop-filter: blur(8px);
+      transition: border-color .25s, color .25s;
+    }
+    .btn-outline:hover { border-color: var(--accent1); color: var(--accent1); }
+
+    /* floating sparkles */
+    .sparkles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .sparkle {
+      position: absolute; width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent1); opacity: 0;
+      animation: twinkle var(--dur, 4s) var(--delay, 0s) infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0; transform: scale(0); }
+      50% { opacity: .8; transform: scale(1); }
+    }
+
+    /* ── Section Wrapper ── */
+    section { padding: 6rem 2rem; }
+    .section-label {
+      font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--accent1); margin-bottom: .8rem;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; line-height: 1.2;
+    }
+    .section-title strong { font-weight: 600; }
+    .section-divider {
+      width: 48px; height: 2px;
+      background: var(--grad);
+      border-radius: 99px; margin: 1.2rem 0 2.5rem;
+    }
+    .container { max-width: 1140px; margin: 0 auto; }
+
+    /* ── Categories ── */
+    #categories { background: var(--bg2); }
+    .cat-grid {
+      display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;
+    }
+    .cat-pill {
+      padding: .6rem 1.5rem; border-radius: 99px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); font-size: .85rem; cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all .25s;
+    }
+    .cat-pill:hover, .cat-pill.active {
+      border-color: var(--accent1);
+      color: var(--accent1);
+      background: var(--glow);
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    /* ── Quote Cards ── */
+    #quotes { background: var(--bg); }
+    .quotes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem; margin-top: 1rem;
+    }
+    .quote-card {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      padding: 2rem;
+      position: relative; overflow: hidden;
+      cursor: pointer;
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+    }
+    .quote-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--grad); opacity: 0;
+      transition: opacity .3s;
+    }
+    .quote-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px var(--glow); border-color: var(--accent1); }
+    .quote-card:hover::before { opacity: .04; }
+    .quote-mark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem; line-height: 1;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      position: absolute; top: .5rem; left: 1.2rem; opacity: .4;
+      pointer-events: none;
+    }
+    .quote-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-style: italic; font-weight: 300;
+      line-height: 1.7; margin-top: 1.8rem; position: relative; z-index: 1;
+    }
+    .quote-author {
+      margin-top: 1.4rem; font-size: .78rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--accent1); position: relative; z-index: 1;
+    }
+    .quote-cat-tag {
+      display: inline-block; padding: .2rem .7rem; border-radius: 99px;
+      font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+      border: 1px solid var(--border); color: var(--muted); margin-top: .8rem;
+      position: relative; z-index: 1;
+    }
+    .quote-card.hidden { display: none; }
+
+    /* ── Quote of the Day ── */
+    #qotd { background: var(--bg2); }
+    .qotd-card {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      padding: 3.5rem;
+      text-align: center; position: relative; overflow: hidden;
+      box-shadow: 0 0 80px var(--glow);
+    }
+    .qotd-card::before {
+      content: '';
+      position: absolute; inset: -1px;
+      border-radius: 25px;
+      background: var(--grad);
+      z-index: -1; opacity: .35;
+    }
+    .qotd-label {
+      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 1.5rem;
+    }
+    .qotd-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.4rem, 3vw, 2.2rem); font-style: italic; font-weight: 300;
+      line-height: 1.6; max-width: 700px; margin: 0 auto;
+    }
+    .qotd-author {
+      margin-top: 1.8rem; font-size: .82rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent1);
+    }
+    .qotd-btn {
+      margin-top: 2.5rem; padding: .75rem 2rem;
+      border-radius: 99px; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: .85rem;
+      cursor: pointer; backdrop-filter: blur(8px);
+      transition: all .25s;
+    }
+    .qotd-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* QOTD fade animation */
+    @keyframes fadeQuote { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: none; } }
+    .qotd-quote.animate, .qotd-author.animate { animation: fadeQuote .5s both; }
+
+    /* ── About ── */
+    #about { background: var(--bg); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .about-visual {
+      position: relative; height: 360px;
+    }
+    .about-blob {
+      position: absolute; border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+      background: var(--grad); opacity: .15;
+      animation: morph 8s infinite alternate;
+    }
+    .blob1 { width: 280px; height: 280px; top: 20px; left: 20px; }
+    .blob2 { width: 200px; height: 200px; bottom: 0; right: 10px; animation-delay: -4s; opacity: .10; }
+    @keyframes morph {
+      0% { border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; }
+      100% { border-radius: 40% 60% 45% 55% / 60% 40% 60% 40%; }
+    }
+    .about-inner-card {
+      position: absolute; inset: 30px;
+      border: 1px solid var(--border); border-radius: 20px;
+      background: var(--surface); backdrop-filter: blur(16px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1rem; padding: 2rem; text-align: center;
+    }
+    .about-stat { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .about-stat-label { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .about-text p { color: var(--muted); font-weight: 300; line-height: 1.8; margin-bottom: 1rem; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 3rem 2rem; text-align: center;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: .5rem;
+    }
+    .footer-tagline { color: var(--muted); font-size: .85rem; margin-bottom: 1.8rem; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: .8rem;
+      letter-spacing: .08em; text-transform: uppercase; transition: color .2s; }
+    .footer-links a:hover { color: var(--accent1); }
+    .footer-copy { color: var(--muted); font-size: .75rem; opacity: .6; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: none; } }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s, transform .7s; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── Mobile ── */
+    @media(max-width: 768px) {
+      .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0;
+        flex-direction: column; background: var(--bg2); padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border); }
+      .nav-links.open { display: flex; }
+      .hamburger { display: flex; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-visual { height: 240px; }
+      .qotd-card { padding: 2rem 1.5rem; }
+      .hero-btns { flex-direction: column; align-items: center; }
+    }
+    @media(max-width:480px) {
+      .nav-right .theme-btn span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav id="navbar">
+  <div class="nav-logo">Luminae</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#categories">Categories</a></li>
+    <li><a href="#quotes">Gallery</a></li>
+    <li><a href="#qotd">Quote of the Day</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-btn active" onclick="setTheme('dusk')" title="Dusk">🌙 <span>Dusk</span></button>
+    <button class="theme-btn" onclick="setTheme('dawn')" title="Dawn">☀️ <span>Dawn</span></button>
+    <button class="theme-btn" onclick="setTheme('forest')" title="Forest">🌿 <span>Forest</span></button>
+  </div>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+  <div class="sparkles" id="sparkles"></div>
+  <div class="hero-tag">✦ A Collection of Words that Move Souls</div>
+  <h1 class="hero-title">Words that<br><em>Illuminate</em><br>the World</h1>
+  <p class="hero-sub">A curated gallery of timeless quotes — beautifully presented, thoughtfully arranged.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('quotes').scrollIntoView({behavior:'smooth'})">Explore Gallery</button>
+    <button class="btn-outline" onclick="document.getElementById('qotd').scrollIntoView({behavior:'smooth'})">Quote of the Day</button>
+  </div>
+</section>
+
+<!-- ── Categories ── -->
+<section id="categories">
+  <div class="container">
+    <div class="section-label reveal">Browse By</div>
+    <h2 class="section-title reveal">Quote <strong>Categories</strong></h2>
+    <div class="section-divider reveal"></div>
+    <div class="cat-grid reveal">
+      <button class="cat-pill active" onclick="filterQuotes('all', this)">✦ All Quotes</button>
+      <button class="cat-pill" onclick="filterQuotes('motivation', this)">🔥 Motivation</button>
+      <button class="cat-pill" onclick="filterQuotes('love', this)">🌸 Love</button>
+      <button class="cat-pill" onclick="filterQuotes('study', this)">📚 Study</button>
+      <button class="cat-pill" onclick="filterQuotes('life', this)">🌿 Life</button>
+      <button class="cat-pill" onclick="filterQuotes('success', this)">✨ Success</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Quote Cards ── -->
+<section id="quotes">
+  <div class="container">
+    <div class="section-label reveal">The Gallery</div>
+    <h2 class="section-title reveal">Curated <strong>Quotes</strong></h2>
+    <div class="section-divider reveal"></div>
+    <div class="quotes-grid" id="quotesGrid"></div>
+  </div>
+</section>
+
+<!-- ── Quote of the Day ── -->
+<section id="qotd">
+  <div class="container">
+    <div class="section-label reveal">Daily Inspiration</div>
+    <h2 class="section-title reveal">Quote of <strong>the Day</strong></h2>
+    <div class="section-divider reveal"></div>
+    <div class="qotd-card reveal">
+      <div class="qotd-label">✦ Today's Thought ✦</div>
+      <p class="qotd-quote" id="qotdText"></p>
+      <p class="qotd-author" id="qotdAuthor"></p>
+      <button class="qotd-btn" onclick="newRandomQuote()">↻ New Random Quote</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── About ── -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-visual reveal">
+        <div class="about-blob blob1"></div>
+        <div class="about-blob blob2"></div>
+        <div class="about-inner-card">
+          <div>
+            <div class="about-stat">50+</div>
+            <div class="about-stat-label">Curated Quotes</div>
+          </div>
+          <div>
+            <div class="about-stat">5</div>
+            <div class="about-stat-label">Categories</div>
+          </div>
+          <div>
+            <div class="about-stat">3</div>
+            <div class="about-stat-label">Themes</div>
+          </div>
+        </div>
+      </div>
+      <div class="about-text">
+        <div class="section-label reveal">About Luminae</div>
+        <h2 class="section-title reveal">Words have <strong>Power</strong></h2>
+        <div class="section-divider reveal"></div>
+        <p class="reveal">Luminae is a thoughtfully designed quote gallery celebrating the art of words. We believe that the right quote, at the right moment, can shift your entire perspective.</p>
+        <p class="reveal">Each quote is hand-picked for its depth, beauty, and ability to resonate across time. Whether you need motivation, comfort, or a moment of reflection — you'll find it here.</p>
+        <p class="reveal" style="color:var(--accent1); font-style:italic; font-family:'Cormorant Garamond',serif; font-size:1.1rem;">
+          "The right words, beautifully placed, change everything."
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-logo">Luminae</div>
+  <p class="footer-tagline">Illuminating minds, one quote at a time.</p>
+  <div class="footer-links">
+    <a href="#hero">Home</a>
+    <a href="#categories">Categories</a>
+    <a href="#quotes">Gallery</a>
+    <a href="#qotd">Daily Quote</a>
+    <a href="#about">About</a>
+  </div>
+  <p class="footer-copy">Crafted with ♥ · Luminae Quote Gallery · 2025</p>
+</footer>
+
+<script>
+  // ── Quote Data ──
+  const quotes = [
+    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs", cat: "motivation" },
+    { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein", cat: "motivation" },
+    { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", cat: "motivation" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt", cat: "motivation" },
+    { text: "Your limitation — it's only your imagination.", author: "Unknown", cat: "motivation" },
+    { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown", cat: "motivation" },
+    { text: "Great things never come from comfort zones.", author: "Unknown", cat: "motivation" },
+    { text: "Dream it. Wish it. Do it.", author: "Unknown", cat: "motivation" },
+    { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb", cat: "life" },
+    { text: "You only live once, but if you do it right, once is enough.", author: "Mae West", cat: "life" },
+    { text: "Life is what happens when you're busy making other plans.", author: "John Lennon", cat: "life" },
+    { text: "To live is the rarest thing in the world. Most people just exist.", author: "Oscar Wilde", cat: "life" },
+    { text: "In the end, it's not the years in your life that count, it's the life in your years.", author: "Abraham Lincoln", cat: "life" },
+    { text: "Life is short, and it's up to you to make it sweet.", author: "Sarah Louise Delany", cat: "life" },
+    { text: "The purpose of our lives is to be happy.", author: "Dalai Lama", cat: "life" },
+    { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt", cat: "success" },
+    { text: "Success usually comes to those who are too busy to be looking for it.", author: "Henry David Thoreau", cat: "success" },
+    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson", cat: "success" },
+    { text: "The road to success and the road to failure are almost exactly the same.", author: "Colin R. Davis", cat: "success" },
+    { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson", cat: "success" },
+    { text: "Opportunities don't happen. You create them.", author: "Chris Grosser", cat: "success" },
+    { text: "Success is not the key to happiness. Happiness is the key to success.", author: "Albert Schweitzer", cat: "success" },
+    { text: "The only place where success comes before work is in the dictionary.", author: "Vidal Sassoon", cat: "success" },
+    { text: "The more that you read, the more things you will know.", author: "Dr. Seuss", cat: "study" },
+    { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela", cat: "study" },
+    { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin", cat: "study" },
+    { text: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King", cat: "study" },
+    { text: "Study hard what interests you the most in the most undisciplined way.", author: "Richard Feynman", cat: "study" },
+    { text: "Learning is not attained by chance, it must be sought for with ardor and diligence.", author: "Abigail Adams", cat: "study" },
+    { text: "Tell me and I forget. Teach me and I remember. Involve me and I learn.", author: "Benjamin Franklin", cat: "study" },
+    { text: "The heart was made to be broken.", author: "Oscar Wilde", cat: "love" },
+    { text: "The best thing to hold onto in life is each other.", author: "Audrey Hepburn", cat: "love" },
+    { text: "Where there is love there is life.", author: "Mahatma Gandhi", cat: "love" },
+    { text: "I have decided to stick with love. Hate is too great a burden to bear.", author: "Martin Luther King Jr.", cat: "love" },
+    { text: "Love is composed of a single soul inhabiting two bodies.", author: "Aristotle", cat: "love" },
+    { text: "The best love is the kind that awakens the soul and makes us reach for more.", author: "Nicholas Sparks", cat: "love" },
+    { text: "To love and be loved is to feel the sun from both sides.", author: "David Viscott", cat: "love" },
+    { text: "We accept the love we think we deserve.", author: "Stephen Chbosky", cat: "love" },
+  ];
+
+  // ── Render Quotes ──
+  function renderQuotes(cat = 'all') {
+    const grid = document.getElementById('quotesGrid');
+    grid.innerHTML = '';
+    const filtered = cat === 'all' ? quotes : quotes.filter(q => q.cat === cat);
+    filtered.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'quote-card';
+      card.style.animationDelay = `${i * 0.05}s`;
+      card.innerHTML = `
+        <div class="quote-mark">"</div>
+        <p class="quote-text">${q.text}</p>
+        <p class="quote-author">— ${q.author}</p>
+        <span class="quote-cat-tag">${q.cat}</span>
+      `;
+      card.addEventListener('click', () => {
+        document.getElementById('qotdText').textContent = q.text;
+        document.getElementById('qotdAuthor').textContent = '— ' + q.author;
+        animateQotd();
+        document.getElementById('qotd').scrollIntoView({ behavior: 'smooth' });
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Filter ──
+  function filterQuotes(cat, btn) {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderQuotes(cat);
+  }
+
+  // ── Quote of the Day ──
+  function setQotd() {
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById('qotdText').textContent = q.text;
+    document.getElementById('qotdAuthor').textContent = '— ' + q.author;
+  }
+  function newRandomQuote() {
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById('qotdText').textContent = q.text;
+    document.getElementById('qotdAuthor').textContent = '— ' + q.author;
+    animateQotd();
+  }
+  function animateQotd() {
+    const el1 = document.getElementById('qotdText');
+    const el2 = document.getElementById('qotdAuthor');
+    el1.classList.remove('animate'); el2.classList.remove('animate');
+    void el1.offsetWidth;
+    el1.classList.add('animate'); el2.classList.add('animate');
+  }
+
+  // ── Theme ──
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    const idx = { dusk: 0, dawn: 1, forest: 2 }[theme];
+    document.querySelectorAll('.theme-btn')[idx].classList.add('active');
+  }
+
+  // ── Hamburger ──
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  // ── Scroll Reveal ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Sparkles ──
+  (function() {
+    const container = document.getElementById('sparkles');
+    for (let i = 0; i < 28; i++) {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      s.style.cssText = `
+        left:${Math.random()*100}%; top:${Math.random()*100}%;
+        --dur:${3+Math.random()*4}s; --delay:${Math.random()*5}s;
+        width:${2+Math.random()*3}px; height:${2+Math.random()*3}px;
+      `;
+      container.appendChild(s);
+    }
+  })();
+
+  // ── Init ──
+  renderQuotes();
+  setQotd();
+
+  // Re-observe new cards after render
+  function reObserve() {
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+  reObserve();
+</script>
+</body>
+</html>
